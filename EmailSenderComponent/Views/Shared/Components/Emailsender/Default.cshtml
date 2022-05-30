@@ -7,6 +7,12 @@
     .dropdown .btn-secondary {
         padding: 0px 7px;
     }
+    /*   #excelIcon {
+        display:none;
+    }*/
+    /* #pdflIcon {
+        display: none;
+    }*/
 </style>
 <div class="dropdown show btnDropdown">
     <a class="btn btn-secondary dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -80,14 +86,11 @@
 </div>
 <!--Data-grid table end-->
 <!--Modal start-->
-<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="false">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLabel">New message</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
+                <h5 class="modal-title" id="exampleModalLabel">Yeni Email</h5>
             </div>
             <div class="modal-body">
                 <form asp-controller="Home" asp-action="SendMail" method="POST">
@@ -102,13 +105,17 @@
                         </div>
                     </div>
                     <div class="form-group">
-                        <input hidden type="hidden" name="GridHtmlPDF" />
+                        <input hidden type="text" id="idGridHtmlPDF" name="GridHtmlPDF" />
                     </div>
                     <div class="form-group">
-                        <input hidden type="hidden" name="GridHtml" />
+                        <input  hidden type="text" id="idexcel" name="GridHtml" />
+                    </div>
+                    <div class="form-group">
+                        <img id="pdflIcon" src="https://img.icons8.com/color/48/000000/pdf-2--v1.png" style="display: none;" />
+                        <img id="excelIcon" src="https://img.icons8.com/color/48/000000/ms-excel.png" style="display: none;" />
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <input type="submit" class="btn btn-secondary" id="close" data-dismiss="modal" value="Close" />
                         <input type="submit" class="btn btn-primary" value="Send Mail" />
                     </div>
                 </form>
@@ -123,21 +130,78 @@
 
 <script type="text/javascript">
 
+    var pdf = document.getElementById("pdflIcon");
+    var excel = document.getElementById("excelIcon");
+    var idpdf = document.getElementById("idGridHtmlPDF");
+    var idecxl = document.getElementById("idexcel");
+
     //====Grid send Excel at style. START
     $(function () {
         $("#generateEXCEL").click(function () {
             $("input[name='GridHtml']").val($("#mainBody").html());
+
+            if (excel.style.display == 'none') {
+                excel.style.display = 'block';
+            } else {
+                excel.style.display = 'none';
+            }
         });
     });
     //==== END
-    //====Grid send pdf at style. START
 
+    //====Grid send pdf at style. START
     $(function () {
         $("#generatePDF").click(function () {
             $("input[name='GridHtmlPDF']").val($("#mainBody").html());
+
+            if (pdf.style.display == 'none') {
+                pdf.style.display = 'block';
+            } else {
+                pdf.style.display = 'none';
+            }
         });
     });
     //==== END
+    //$(function () {
+    //    $(document).on("click","#close",function () {
 
+    //        if (pdf.style.display == 'block' ||  excel.style.display == 'block' ) {
+    //            excel.style.display = 'none';
+    //            pdf.style.display = 'none';
+    //        } else {
+    //            excel.style.display = 'none';
+    //            pdf.style.display = 'none';
+    //        }
+    //    });
+    //});
+
+    $(document).on("click", "#exampleModal", function () {
+        if ($(this).hasClass("show")) {
+            if (excel.style.display == "block") {
+                pdf.style.display = 'none';
+            }
+            if (pdf.style.display == 'block') {
+                excel.style.display = 'none';
+            }
+        }
+        else {
+            excel.style.display = 'none';
+            pdf.style.display = 'none';
+            $(idpdf).val(""); 
+            $(idecxl).val("");
+        }
+
+    })
+    //$(document).on("click", "#exampleModal", function () {
+    //    if ($(this).hasClass("show")) {
+    //        pdf.style.display = 'block';
+    //        if (pdf.style.display == 'block') {
+    //            excel.style.display = 'none';
+    //        }
+    //    } else {
+    //        pdf.style.display = 'none';
+    //    }
+
+    //})
 </script>
 
