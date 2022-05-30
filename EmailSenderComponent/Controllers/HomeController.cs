@@ -20,7 +20,7 @@ namespace EmailSenderComponent.Controllers
         private readonly Microsoft.AspNetCore.Identity.UI.Services.IEmailSender _emailSender;
 
         public HomeController(ILogger<HomeController> logger,
-                                            MyContext context, 
+                                            MyContext context,
                                             Microsoft.AspNetCore.Identity.UI.Services.IEmailSender emailSender)
         {
             _logger = logger;
@@ -31,53 +31,63 @@ namespace EmailSenderComponent.Controllers
         {
             return View();
         }
+
+        //The action of sending a data link to Gmail. START
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> SendMail(string Mail, string GridHtml, string GridHtmlPDF)
         {
             if (ModelState.IsValid)
             {
-                //emailSendVM.FileUrl = GridHtml;
 
                 if (Mail != null)
                 {
-                    if(GridHtml != null)
+                    if (GridHtml != null)
                     {
-                    //email send
-                    byte[] tokenGeneratedBytes = Encoding.UTF8.GetBytes(GridHtml);
-                    var codeEncoded = WebEncoders.Base64UrlEncode(tokenGeneratedBytes);
-
-                    FilesExPdf exPdf = new FilesExPdf()
-                    {
-                        FileToken = codeEncoded
-                    };
-               
-                    await _context.FilesExPdfs.AddAsync(exPdf);
-
-                    await _context.SaveChangesAsync();
-
-                    await _emailSender.SendEmailAsync(Mail, "Değerli Müşterimiz, yeni bir Belgeniz var", 
-
-                         $"Lütfen EXCEL belgenizi acmak icin tiklayiniz  " +
-                        $"<a href='{HtmlEncoder.Default.Encode($"https://localhost:44394/Home/ExportExcel?token={exPdf.Id}")}'>" +
-                        "LINK."+
-                        $"</a>");
-                    }
-                    if (GridHtmlPDF != null)
-                    {
-                        //email send
-                        byte[] tokenGeneratedBytes = Encoding.UTF8.GetBytes(GridHtmlPDF);
+                        //Converting html grid type, to byte type.
+                        byte[] tokenGeneratedBytes = Encoding.UTF8.GetBytes(GridHtml);
                         var codeEncoded = WebEncoders.Base64UrlEncode(tokenGeneratedBytes);
 
+                        //appending the byte type to the corresponding field in the table
                         FilesExPdf exPdf = new FilesExPdf()
                         {
                             FileToken = codeEncoded
                         };
 
+                        // add url to database
                         await _context.FilesExPdfs.AddAsync(exPdf);
 
+                        // save to database
                         await _context.SaveChangesAsync();
 
+                        //email send
+                        await _emailSender.SendEmailAsync(Mail, "Değerli Müşterimiz, yeni bir Belgeniz var",
+
+                             $"Lütfen EXCEL belgenizi acmak icin tiklayiniz  " +
+                            $"<a href='{HtmlEncoder.Default.Encode($"https://localhost:44394/Home/ExportExcel?token={exPdf.Id}")}'>" +
+                            "LINK." +
+                            $"</a>");
+                    }
+
+                    if (GridHtmlPDF != null)
+                    {
+                        //Converting html grid type, to byte type.
+                        byte[] tokenGeneratedBytes = Encoding.UTF8.GetBytes(GridHtmlPDF);
+                        var codeEncoded = WebEncoders.Base64UrlEncode(tokenGeneratedBytes);
+
+                        //appending the byte type to the corresponding field in the table
+                        FilesExPdf exPdf = new FilesExPdf()
+                        {
+                            FileToken = codeEncoded
+                        };
+
+                        // add url to database
+                        await _context.FilesExPdfs.AddAsync(exPdf);
+
+                        // save to database
+                        await _context.SaveChangesAsync();
+
+                        //email send
                         await _emailSender.SendEmailAsync(Mail, "Değerli Müşterimiz, yeni bir Belgeniz var",
 
                              $" Lütfen PDF belgenizi acmak icin tiklayiniz  " +
@@ -86,36 +96,36 @@ namespace EmailSenderComponent.Controllers
                             $"</a>");
                     }
 
-
                 }
 
             }
             return RedirectToAction(nameof(Index));
         }
+        //END
 
-
+        // The action of converting the url from Gmail to Excel. START
         [HttpGet]
-        public IActionResult ExportExcel( int token)
+        public IActionResult ExportExcel(int token)
         {
-            foreach( var iteam in _context.FilesExPdfs)
+            foreach (var iteam in _context.FilesExPdfs)
             {
-               if(iteam.Id == token)
+                if (iteam.Id == token)
                 {
                     var cod = iteam.FileToken;
                     var codeDecodedBytes = WebEncoders.Base64UrlDecode(cod);
                     var codeDecoded = Encoding.UTF8.GetString(codeDecodedBytes);
-                    var date =  DateTime.Now;
 
-                    return File(System.Text.Encoding.ASCII.GetBytes(codeDecoded), "application/vnd.ms-excel", "IGC.xls");
+                    return File(System.Text.Encoding.ASCII.GetBytes(codeDecoded), "application/vnd.ms-excel", "IGC_EXCEL.xls");
                 }
             }
             return View();
         }
+        //END
 
+        //The action of converting the url from Gmail to Pdf.  START
         [HttpGet]
         public IActionResult ExportPdf(int token)
         {
-
             foreach (var iteam in _context.FilesExPdfs)
             {
                 if (iteam.Id == token)
@@ -127,14 +137,14 @@ namespace EmailSenderComponent.Controllers
                     using (MemoryStream stream = new MemoryStream())
                     {
                         HtmlConverter.ConvertToPdf(codeDecoded, stream);
-                        return File(stream.ToArray(), "application/pdf", "IGC.pdf");
+                        return File(stream.ToArray(), "application/pdf", "IGC_PDF.pdf");
                     }
-
                 }
             }
             return View();
 
-            
+
         }
     }
+    //END
 }

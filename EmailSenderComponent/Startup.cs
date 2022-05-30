@@ -39,6 +39,8 @@ namespace EmailSenderComponent
                 _configuration["EmailSettings:Password"]
 
                 ));
+
+            //database connection location.
             services.AddDbContext<MyContext>(options =>
             {
                 options.UseSqlServer(_configuration["ConnectionStrings:Default"]);
