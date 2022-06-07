@@ -31,14 +31,14 @@ namespace EmailSenderComponent
             services.AddControllersWithViews();
 
             //For email sender
-            services.AddSingleton<Microsoft.AspNetCore.Identity.UI.Services.IEmailSender, EmailSender>(e => new EmailSender(
-                _configuration["EmailSettings:Host"],
-                _configuration.GetValue<int>("EmailSettings:Port"),
-                _configuration.GetValue<bool>("EmailSettings:SSL"),
-                _configuration["EmailSettings:Username"],
-                _configuration["EmailSettings:Password"]
+            //services.AddSingleton<Microsoft.AspNetCore.Identity.UI.Services.IEmailSender, EmailSender>(e => new EmailSender(
+            //    _configuration["EmailSettings:Host"],
+            //    _configuration.GetValue<int>("EmailSettings:Port"),
+            //    _configuration.GetValue<bool>("EmailSettings:SSL"),
+            //    _configuration["EmailSettings:Username"],
+            //    _configuration["EmailSettings:Password"]
 
-                ));
+            //    ));
 
             //database connection location.
             services.AddDbContext<MyContext>(options =>

@@ -1,0 +1,9 @@
+SQL
+login:sa
+pasword:monstert5
+
+test user:
+admingenel@igc.com.tr
+Gg123456
+
+igc2021

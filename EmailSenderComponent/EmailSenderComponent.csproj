@@ -6,6 +6,7 @@
 
   <ItemGroup>
     <Folder Include="Views\ViewModels\" />
+    <Folder Include="wwwroot\uploads\" />
   </ItemGroup>
 
   <ItemGroup>

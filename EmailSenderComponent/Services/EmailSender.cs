@@ -3,9 +3,8 @@ using Microsoft.AspNetCore.Identity.UI.Services;
 using MimeKit;
 using System;
 using System.Collections.Generic;
-using System.Linq;
+using System.Security.Authentication;
 using System.Threading.Tasks;
-using System.Threading.Tasks.Dataflow;
 
 
 namespace EmailSenderComponent.Services
@@ -27,28 +26,44 @@ namespace EmailSenderComponent.Services
             _password = password;
         }
 
-        public async Task SendEmailAsync(string email, string subject, string htmlMessage)
+        public async Task SendEmailAsync(string email, string subject, string htmlMessage, List<string> attachments)
         {
             var message = new MimeMessage();
             message.From.Add(new MailboxAddress("IGC", "kamran.alibayli@igc.com.tr"));
-            message.To.Add(new MailboxAddress("Frenk",email));
-
+            message.To.Add(new MailboxAddress("", email));
             message.Subject = subject;
             message.Body = new TextPart("html")
             {
                 Text = htmlMessage
             };
 
+            var bodyBuilder = new BodyBuilder();
+
+            if (attachments != null)
+            {
+
+                foreach (var attachment in attachments)
+                {
+                    bodyBuilder.Attachments.Add(attachment);
+
+                }
+            }
+
+            message.Body = bodyBuilder.ToMessageBody();
+
             using (var smtp = new SmtpClient())
             {
                 try
                 {
-                smtp.Connect(_host, _port, _ssl);
-                smtp.Authenticate(_username, _password);
-                await smtp.SendAsync(message);
-                smtp.Disconnect(true);
+                    smtp.ServerCertificateValidationCallback = (s, c, h, e) => true;
+                    smtp.CheckCertificateRevocation = false;
+                    smtp.SslProtocols = SslProtocols.Tls12 | SslProtocols.Tls13;
+                    smtp.Connect(_host, _port, _ssl);
+                    smtp.Authenticate(_username, _password);
+                    await smtp.SendAsync(message);
+                    smtp.Disconnect(true);
                 }
-                catch (Exception ex)
+                catch (Exception e)
                 {
 
                     throw;
@@ -56,8 +71,13 @@ namespace EmailSenderComponent.Services
             }
 
         }
+
+        public Task SendEmailAsync(string email, string subject, string htmlMessage)
+        {
+            throw new NotImplementedException();
+        }
     }
 
 
-  
+
 }
